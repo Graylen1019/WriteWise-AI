@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DrizzleService } from './db/drizzle.service';
-import OpenAI from 'openai';
 import { OpenAIController } from '../openai/openai.controller';
 import { OpenAIService } from '../openai/openai.service';
 
