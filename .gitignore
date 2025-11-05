@@ -1,0 +1,64 @@
+# === Node dependencies ===
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# === Build outputs ===
+dist/
+.next/
+out/
+build/
+coverage/
+
+# === Turbo build cache ===
+.turbo/
+turbo/
+turbo-build.log
+
+# === Drizzle ORM ===
+drizzle/
+migrations/
+drizzle.config.ts.bak
+
+# === TypeScript ===
+*.tsbuildinfo
+
+# === Environment files ===
+.env*
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# === IDE/editor junk ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*.log
+*.DS_Store
+Thumbs.db
+
+# === OS-level ===
+.DS_Store
+ehthumbs.db
+Icon?
+desktop.ini
+
+# === Test coverage / reports ===
+coverage/
+*.lcov
+
+# === NestJS specific ===
+*.js.map
+*.d.ts
+
+# === Optional: ignore frontend build exports ===
+apps/frontend/.next/
+apps/frontend/out/
+apps/frontend/.vercel/
+
+# === Optional: ignore backend build artifacts ===
+apps/backend/dist/
+apps/backend/.env
