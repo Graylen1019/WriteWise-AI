@@ -1,17 +1,23 @@
-import { pgTable, text, varchar, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  varchar,
+  timestamp,
+  text,
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const users = pgTable("users", {
-  id: uuid("id").defaultRandom().primaryKey(),
+  id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  password: text("password").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at").default(sql`now()`),
 });
 
 export const documents = pgTable("documents", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").references(() => users.id),
-  title: varchar("title", { length: 255 }).notNull(),
+  id: serial("id").primaryKey(),
+  userId: serial("user_id").references(() => users.id),
+  title: varchar("title", { length: 255 }),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  aiSuggestion: text("ai_suggestion"),
+  createdAt: timestamp("created_at").default(sql`now()`),
 });
