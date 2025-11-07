@@ -1,51 +1,47 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 
 export default function SuggestClient() {
-  const [input, setInput] = React.useState("");
-  const [output, setOutput] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-
-    setLoading(true);
     setError("");
+    setLoading(true);
     setOutput("");
 
     try {
-      const res = await fetch("http://localhost:3001/suggest", {
+      const res = await fetch("/api/suggest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: input }),
       });
+
       const data = await res.json();
-      setOutput(data.suggestion || "No suggestion received.");
-    } catch (err) {
-      setError(`Something went wrong: ${String(err)}`);
+      if (data.suggestion) setOutput(data.suggestion);
+      else setError("No suggestion received.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-8">
+    <div className="flex flex-col items-center justify-center min-h-screen p-8">
       <h1 className="text-3xl font-bold mb-4">✍️ WriteWise AI</h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4 w-full max-w-xl"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-xl">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type or paste your text here..."
           className="p-3 border border-gray-300 rounded-md w-full h-48 resize-none"
         />
-
         <button
           type="submit"
           disabled={loading}
@@ -65,6 +61,6 @@ export default function SuggestClient() {
           </p>
         </div>
       )}
-    </main>
+    </div>
   );
 }
