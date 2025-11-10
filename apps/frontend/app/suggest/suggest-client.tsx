@@ -1,73 +1,89 @@
 "use client";
-import { Navbar } from '@/components/navbar/navbar';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react'
-import Link from "next/link";
+
+import { Navbar } from "@/components/navbar/navbar";
+import { WritingEditor } from "@/components/suggest/writing-editor/writing-editor";
+import { MetricsPanel } from "@/components/suggest/metrics-panel";
+import { SuggestionsPanel } from "@/components/suggest/suggest-panel";
 import { useState } from "react";
 
 export default function SuggestClient() {
-  const [input, setInput] = useState("");
+  const [text, setText] = useState("");
+  const [selectedMode, setSelectedMode] = useState("general");
+  const [selectedTone, setSelectedTone] = useState("professional");
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const handleSubmit = async () => {
+    if (!text.trim()) {
+      setError("Please enter some text to enhance.");
+      return;
+    }
+
     setLoading(true);
+    setError("");
     setOutput("");
+    setAiSuggestions([]);
 
     try {
-      const res = await fetch("/api/suggest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: input }),
-      });
+      const [suggestRes, analyzeRes] = await Promise.all([
+        fetch("http://localhost:3001/openai/suggest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, tone: selectedTone }),
+        }),
+        fetch("http://localhost:3001/openai/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, tone: selectedTone }),
+        }),
+      ]);
 
-      const data = await res.json();
-      if (data.suggestion) setOutput(data.suggestion);
-      else setError("No suggestion received.");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const suggestData = await suggestRes.json();
+      const analyzeData = await analyzeRes.json();
+
+      if (suggestData.suggestion) setOutput(suggestData.suggestion);
+      if (analyzeData.suggestions) setAiSuggestions(analyzeData.suggestions);
+    } catch (err) {
+      setError((err as Error).message || "Failed to contact backend.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="w-svw h-svh bg-gray-200">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
       <Navbar />
-      <div className="flex flex-col items-center justify-center min-h-screen p-8">
-        <h1 className="text-3xl font-bold mb-4">✍️ WriteWise AI</h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-xl">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type or paste your text here..."
-            className="p-3 border border-gray-300 rounded-md w-full h-48 resize-none"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 disabled:opacity-50"
-          >
-            {loading ? "Enhancing..." : "Enhance Writing"}
-          </button>
-        </form>
-
-        {error && <p className="text-red-500 mt-4">{error}</p>}
-
-        {output && (
-          <div className="mt-8 w-full max-w-xl">
-            <h2 className="font-semibold mb-2">AI Suggestion:</h2>
-            <p className="p-4 bg-gray-50 border rounded-md whitespace-pre-wrap">
-              {output}
-            </p>
+      <main className="max-w-[1600px] mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <WritingEditor
+              text={text}
+              setText={setText}
+              selectedMode={selectedMode}
+              setSelectedMode={setSelectedMode}
+              selectedTone={selectedTone}
+              setSelectedTone={setSelectedTone}
+              onSubmit={handleSubmit}
+              loading={loading}
+            />
+            <MetricsPanel text={text} />
           </div>
-        )}
-      </div>
-    </main>
+
+          <div className="lg:col-span-1">
+            <SuggestionsPanel
+              text={text}
+              selectedTone={selectedTone}
+              output={output}
+              loading={loading}
+              error={error}
+              aiSuggestions={aiSuggestions}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }

@@ -9,6 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        new3: "flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all",
         new2: "px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity",
         new: "px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors",
         default: "bg-primary text-primary-foreground hover:bg-primary/90",

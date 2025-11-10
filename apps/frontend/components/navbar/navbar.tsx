@@ -1,9 +1,10 @@
-import { Link, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 export const Navbar = () => {
     return (
-        <nav className="bg-white">
+        <nav className="bg-linear-to-br from-indigo-50 via-white to-purple-50">
             <div className='p-4 max-w-[1600px] w-full justify-between flex items-center mx-auto'>
 
                 <Link href={"/"}>
